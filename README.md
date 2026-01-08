@@ -19,6 +19,7 @@
 > For a complete deployment guide and detailed examples, please refer to [hugegraph-llm/README.md](./hugegraph-llm/README.md)
 
 ### Prerequisites
+
 - Python 3.10+ (required for hugegraph-llm)
 - [uv](https://docs.astral.sh/uv/) 0.7+ (required for workspace management)
 - HugeGraph Server 1.3+ (1.5+ recommended)
@@ -74,41 +75,8 @@ python -m hugegraph_llm.demo.rag_demo.app
 > [!NOTE]
 > Examples assume you've activated the virtual environment with `source .venv/bin/activate`
 
-#### GraphRAG - Question Answering
-```python
-from hugegraph_llm.operators.graph_rag_task import RAGPipeline
-
-# Initialize RAG pipeline
-graph_rag = RAGPipeline()
-
-# Ask questions about your graph
-result = (graph_rag
-    .extract_keywords(text="Tell me about Al Pacino.")
-    .keywords_to_vid()
-    .query_graphdb(max_deep=2, max_graph_items=30)
-    .merge_dedup_rerank()
-    .synthesize_answer()
-    .run())
-```
-
-#### Knowledge Graph Construction
-```python
-from hugegraph_llm.models.llms.init_llm import LLMs
-from hugegraph_llm.operators.kg_construction_task import KgBuilder
-
-# Build KG from text
-TEXT = "Your text content here..."
-builder = KgBuilder(LLMs().get_chat_llm())
-
-(builder
-    .import_schema(from_hugegraph="hugegraph")
-    .chunk_split(TEXT)
-    .extract_info(extract_type="property_graph")
-    .commit_to_hugegraph()
-    .run())
-```
-
 #### Graph Machine Learning
+
 ```bash
 # Install ML dependencies (ml module is not in workspace)
 uv sync --extra ml
@@ -122,14 +90,18 @@ python examples/your_ml_example.py
 ## 📦 Modules
 
 ### [hugegraph-llm](./hugegraph-llm) [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/apache/incubator-hugegraph-ai)
+
 Large language model integration for graph applications:
+
 - **GraphRAG**: Retrieval-augmented generation with graph data
-- **Knowledge Graph Construction**: Build KGs from text automatically  
+- **Knowledge Graph Construction**: Build KGs from text automatically
 - **Natural Language Interface**: Query graphs using natural language
 - **AI Agents**: Intelligent graph analysis and reasoning
 
 ### [hugegraph-ml](./hugegraph-ml)
+
 Graph machine learning with 20+ implemented algorithms:
+
 - **Node Classification**: GCN, GAT, GraphSAGE, APPNP, etc.
 - **Graph Classification**: DiffPool, P-GNN, etc.
 - **Graph Embedding**: DeepWalk, Node2Vec, GRACE, etc.
@@ -139,7 +111,9 @@ Graph machine learning with 20+ implemented algorithms:
 > hugegraph-ml is not part of the workspace but linked via path dependency
 
 ### [hugegraph-python-client](./hugegraph-python-client)
+
 Python client for HugeGraph operations:
+
 - **Schema Management**: Define vertex/edge labels and properties
 - **CRUD Operations**: Create, read, update, delete graph data
 - **Gremlin Queries**: Execute graph traversal queries
@@ -154,6 +128,7 @@ Python client for HugeGraph operations:
 ## 🔗 Related HugeGraph Projects
 
 And here are links of other repositories:
+
 1. [hugegraph](https://github.com/apache/hugegraph) (graph's core component - Graph server + PD + Store)
 2. [hugegraph-toolchain](https://github.com/apache/hugegraph-toolchain) (graph tools **[loader](https://github.com/apache/incubator-hugegraph-toolchain/tree/master/hugegraph-loader)/[dashboard](https://github.com/apache/incubator-hugegraph-toolchain/tree/master/hugegraph-hubble)/[tool](https://github.com/apache/incubator-hugegraph-toolchain/tree/master/hugegraph-tools)/[client](https://github.com/apache/incubator-hugegraph-toolchain/tree/master/hugegraph-client)**)
 3. [hugegraph-computer](https://github.com/apache/hugegraph-computer) (integrated **graph computing** system)
@@ -165,19 +140,19 @@ We welcome contributions! Please see our [contribution guidelines](https://hugeg
 
 ### 🤖 AI Coding Guidelines for Developers
 
-> [!IMPORTANT]
-> **For project contributors using AI coding tools**, please follow these guidelines:
-> 
+> [!IMPORTANT] > **For project contributors using AI coding tools**, please follow these guidelines:
+>
 > - **Start Here**: First read `rules/README.md` for the complete AI-assisted development workflow
-> - **Module Context**: When `basic-introduction.md` exists in any module, rename it as context for your LLM (e.g., `CLAUDE.md`, `copilot-instructions.md`)
+> - **Module Context**: When `AGENTS.md` exists in any module, rename it as context for your LLM (e.g., `CLAUDE.md`, `copilot-instructions.md`)
 > - **Documentation Standards**: Follow the structured documentation approach in `rules/prompts/project-general.md`
 > - **Deep Analysis**: For complex features, refer to `rules/prompts/project-deep.md` for comprehensive code analysis methodology
 > - **Code Quality**: Maintain consistency with existing patterns and ensure proper type annotations
 > - **Testing**: Follow TDD principles and ensure comprehensive test coverage for new features
-> 
+>
 > These guidelines ensure consistent code quality and maintainable development workflow with AI assistance.
 
 **Development Setup:**
+
 ```bash
 # 1. Clone and navigate to project
 git clone https://github.com/apache/incubator-hugegraph-ai.git
@@ -203,6 +178,18 @@ uv add numpy  # Add to base dependencies
 uv add --group dev pytest-mock  # Add to dev group
 ```
 
+### Code Quality (ruff + pre-commit)
+
+- Ruff is used for linting and formatting:
+  - \`ruff format .\`
+  - \`ruff check .\`
+- Enable Git hooks via pre-commit:
+  - \`pre-commit install\`
+  - \`pre-commit run --all-files\`
+- Config: [.pre-commit-config.yaml](.pre-commit-config.yaml). CI enforces these checks.
+  **Key Points:**
+- Config: [.pre-commit-config.yaml](.pre-commit-config.yaml). CI enforces these checks.
+
 **Key Points:**
 - Use [GitHub Desktop](https://desktop.github.com/) for easier PR management
 - Check existing issues before reporting bugs
@@ -217,6 +204,7 @@ hugegraph-ai is licensed under [Apache 2.0 License](./LICENSE).
 
 - **GitHub Issues**: [Report bugs or request features](https://github.com/apache/incubator-hugegraph-ai/issues) (fastest response)
 - **Email**: [dev@hugegraph.apache.org](mailto:dev@hugegraph.apache.org) ([subscription required](https://hugegraph.apache.org/docs/contribution-guidelines/subscribe/))
+- **Slack**: [Join the ASF HugeGraph channel](https://the-asf.slack.com/archives/C059UU2FJ23)
 - **WeChat**: Follow "Apache HugeGraph" official account
 
 <img src="https://raw.githubusercontent.com/apache/hugegraph-doc/master/assets/images/wechat.png" alt="Apache HugeGraph WeChat QR Code" width="200"/>
