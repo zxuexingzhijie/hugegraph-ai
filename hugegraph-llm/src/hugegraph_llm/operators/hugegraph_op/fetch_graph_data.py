@@ -32,20 +32,20 @@ class FetchGraphData:
         # TODO: v_limit will influence the vid embedding logic in build_semantic_index.py
         v_limit = 10000
         e_limit = 200
-        keys = ["vertex_num", "edge_num", "vertices", "edges", "note"]
 
-        groovy_code = f"""
-        def res = [:];
-        res.{keys[0]} = g.V().count().next();
-        res.{keys[1]} = g.E().count().next();
-        res.{keys[2]} = g.V().id().limit({v_limit}).toList();
-        res.{keys[3]} = g.E().id().limit({e_limit}).toList();
-        res.{keys[4]} = "Only ≤{v_limit} VIDs and ≤ {e_limit} EIDs for brief overview .";
-        return res;
-        """
+        graph_api = self.graph.graph()
 
-        result = self.graph.gremlin().exec(groovy_code)["data"]
+        vertices = graph_api.getVertexByCondition(limit=v_limit) or []
+        edges = graph_api.getEdgeByPage(limit=e_limit)[0] or []
 
-        if isinstance(result, list) and len(result) > 0:
-            graph_summary.update({key: result[i].get(key) for i, key in enumerate(keys)})
+        vertex_ids = [str(v.id) for v in vertices]
+        edge_ids = [str(e.id) for e in edges]
+
+        graph_summary.update({
+            "vertex_num": len(vertex_ids),
+            "edge_num": len(edge_ids),
+            "vertices": vertex_ids,
+            "edges": edge_ids,
+            "note": f"Only <={v_limit} VIDs and <={e_limit} EIDs for brief overview .",
+        })
         return graph_summary

@@ -202,5 +202,5 @@ if __name__ == "__main__":
         host=args.host,
         port=args.port,
         factory=True,
-        reload=True,
+        reload=False,
     )
