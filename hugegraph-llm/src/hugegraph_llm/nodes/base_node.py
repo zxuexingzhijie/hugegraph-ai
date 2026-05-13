@@ -75,7 +75,13 @@ class BaseNode(GNode):
             node_info = f"Node type: {type(self).__name__}, Node object: {self}"
             err_msg = f"Node failed: {exc}\n{node_info}\n{traceback.format_exc()}"
             return CStatus(-1, err_msg)
-        # For unexpected exceptions, re-raise to let them propagate or be caught elsewhere
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            import traceback
+
+            node_info = f"Node type: {type(self).__name__}, Node object: {self}"
+            err_msg = f"Node unexpected error: {exc}\n{node_info}\n{traceback.format_exc()}"
+            log.error(err_msg)
+            return CStatus(-1, err_msg)
 
         self.context.lock()
         try:

@@ -70,16 +70,19 @@ class OpenAIClient(BaseLLM):
                 max_tokens=self.max_tokens,
                 messages=messages,
             )
-            log.info("Token usage: %s", completions.usage.model_dump_json())
+            if not hasattr(completions, 'choices'):
+                raise RuntimeError(f"Unexpected LLM response: {type(completions).__name__}: {str(completions)[:200]}")
+            if completions.usage:
+                log.info("Token usage: %s", completions.usage.model_dump_json())
             return completions.choices[0].message.content
         # catch context length / do not retry
         except openai.BadRequestError as e:
             log.critical("Fatal: %s", e)
-            return str(f"Error: {e}")
+            raise
         # catch authorization errors / do not retry
         except openai.AuthenticationError:
             log.critical("The provided OpenAI API key is invalid")
-            return "Error: The provided OpenAI API key is invalid"
+            raise
         except Exception as e:
             log.error("Retrying LLM call %s", e)
             raise e
@@ -105,16 +108,19 @@ class OpenAIClient(BaseLLM):
                 max_tokens=self.max_tokens,
                 messages=messages,
             )
-            log.info("Token usage: %s", completions.usage.model_dump_json())
+            if not hasattr(completions, 'choices'):
+                raise RuntimeError(f"Unexpected LLM response: {type(completions).__name__}: {str(completions)[:200]}")
+            if completions.usage:
+                log.info("Token usage: %s", completions.usage.model_dump_json())
             return completions.choices[0].message.content
         # catch context length / do not retry
         except openai.BadRequestError as e:
             log.critical("Fatal: %s", e)
-            return str(f"Error: {e}")
+            raise
         # catch authorization errors / do not retry
         except openai.AuthenticationError:
             log.critical("The provided OpenAI API key is invalid")
-            return "Error: The provided OpenAI API key is invalid"
+            raise
         except Exception as e:
             log.error("Retrying LLM call %s", e)
             raise e
