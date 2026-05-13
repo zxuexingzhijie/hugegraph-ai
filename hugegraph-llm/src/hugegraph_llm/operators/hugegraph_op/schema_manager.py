@@ -17,7 +17,6 @@
 from typing import Any, Dict, Optional
 
 from pyhugegraph.client import PyHugeClient
-from requests.exceptions import RequestException
 
 from hugegraph_llm.config import huge_settings
 
@@ -58,12 +57,9 @@ class SchemaManager:
     def run(self, context: Optional[Dict[str, Any]]) -> Dict[str, Any]:
         if context is None:
             context = {}
-        try:
-            schema = self.schema.getSchema()
-        except RequestException as e:
-            raise ValueError(f"Failed to connect HugeGraph to get schema '{self.graph_name}': {e}") from e
+        schema = self.schema.getSchema()
         if not schema["vertexlabels"] and not schema["edgelabels"]:
-            raise ValueError(f"Can not get {self.graph_name}'s schema from HugeGraph!")
+            raise Exception(f"Can not get {self.graph_name}'s schema from HugeGraph!")
 
         context.update({"schema": schema})
         # TODO: enhance the logic here

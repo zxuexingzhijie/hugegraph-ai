@@ -75,7 +75,7 @@ class LiteLLMClient(BaseLLM):
             return response.choices[0].message.content
         except (RateLimitError, BudgetExceededError, APIError) as e:
             log.error("Error in LiteLLM call: %s", e)
-            raise
+            return f"Error: {str(e)}"
 
     @retry(
         stop=stop_after_attempt(2),
@@ -104,7 +104,7 @@ class LiteLLMClient(BaseLLM):
             return response.choices[0].message.content
         except (RateLimitError, BudgetExceededError, APIError) as e:
             log.error("Error in async LiteLLM call: %s", e)
-            raise
+            return f"Error: {str(e)}"
 
     def generate_streaming(
         self,
