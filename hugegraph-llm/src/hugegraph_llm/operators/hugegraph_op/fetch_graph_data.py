@@ -20,8 +20,6 @@ from typing import Any, Dict, Optional
 
 from pyhugegraph.client import PyHugeClient
 
-from hugegraph_llm.utils.log import log
-
 
 class FetchGraphData:
     def __init__(self, graph: PyHugeClient):
@@ -46,18 +44,16 @@ class FetchGraphData:
         return res;
         """
 
-        try:
-            response = self.graph.gremlin().exec(groovy_code)
-        except Exception as e:
-            log.warning("Failed to fetch graph summary: %s", e)
-            return graph_summary
-
+        response = self.graph.gremlin().exec(groovy_code)
         result = response.get("data") if isinstance(response, dict) else None
         if isinstance(result, list) and len(result) > 0:
-            graph_summary.update(
-                {
-                    key: result[i].get(key) if i < len(result) and isinstance(result[i], dict) else None
-                    for i, key in enumerate(keys)
-                }
-            )
+            if len(result) == 1 and isinstance(result[0], dict) and any(key in result[0] for key in keys):
+                graph_summary.update({key: result[0].get(key) for key in keys})
+            else:
+                graph_summary.update(
+                    {
+                        key: result[i].get(key) if i < len(result) and isinstance(result[i], dict) else None
+                        for i, key in enumerate(keys)
+                    }
+                )
         return graph_summary
