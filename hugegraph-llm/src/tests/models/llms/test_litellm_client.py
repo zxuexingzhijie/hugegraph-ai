@@ -20,7 +20,6 @@ import unittest
 from unittest.mock import AsyncMock, patch
 
 from litellm.exceptions import APIError, BudgetExceededError
-from tenacity.retry import retry_if_exception_type
 
 from hugegraph_llm.models.llms.litellm import LiteLLMClient
 
@@ -45,12 +44,6 @@ class TestLiteLLMClient(unittest.TestCase):
                 client.generate(prompt="hello")
 
         self.assertEqual(mock_completion.call_count, 2)
-
-    def test_generate_retry_policy_excludes_budget_exceeded_error(self):
-        retry_policy = LiteLLMClient().generate.retry.retry
-
-        self.assertIsInstance(retry_policy, retry_if_exception_type)
-        self.assertNotIn(BudgetExceededError, retry_policy.exception_types)
 
     def test_generate_streaming_reraises_api_error(self):
         client = LiteLLMClient(model_name="openai/gpt-4.1-mini")

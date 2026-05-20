@@ -75,8 +75,8 @@ class OllamaEmbedding(BaseEmbedding):
         all_embeddings = []
         for i in range(0, len(texts), batch_size):
             batch = texts[i : i + batch_size]
-            response = self.client.embed(model=self.model, input=batch)["embeddings"]
-            all_embeddings.extend([list(inner_sequence) for inner_sequence in response])
+            response = self.client.embed(model=self.model, input=batch)
+            all_embeddings.extend(self._get_embeddings_from_response(response))
         return all_embeddings
 
     def _get_embeddings_from_response(self, response) -> List[List[float]]:

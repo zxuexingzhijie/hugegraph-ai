@@ -18,7 +18,7 @@
 
 import os
 import unittest
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
 from hugegraph_llm.models.embeddings.base import SimilarityMode
 from hugegraph_llm.models.embeddings.ollama import OllamaEmbedding
@@ -73,6 +73,22 @@ class TestOllamaEmbedding(unittest.TestCase):
         import asyncio
 
         asyncio.run(run_async_test())
+
+    def test_get_texts_embeddings_requires_embeddings_key(self):
+        ollama_embedding = OllamaEmbedding(model="test-model")
+        ollama_embedding.client = MagicMock()
+        ollama_embedding.client.embed.return_value = {}
+
+        with self.assertRaisesRegex(ValueError, "missing 'embeddings'"):
+            ollama_embedding.get_texts_embeddings(["a"])
+
+    def test_get_texts_embeddings_requires_non_empty_embeddings(self):
+        ollama_embedding = OllamaEmbedding(model="test-model")
+        ollama_embedding.client = MagicMock()
+        ollama_embedding.client.embed.return_value = {"embeddings": []}
+
+        with self.assertRaisesRegex(ValueError, "returned no embeddings"):
+            ollama_embedding.get_texts_embeddings(["a"])
 
     def test_async_get_text_embedding_requires_non_empty_embeddings(self):
         ollama_embedding = OllamaEmbedding(model="test-model")
