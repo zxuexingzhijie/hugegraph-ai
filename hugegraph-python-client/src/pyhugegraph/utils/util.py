@@ -102,16 +102,19 @@ class ResponseValidation:
             else:
                 try:
                     body = response.json()
-                    status = body.get("status")
-                    status_message = status.get("message") if isinstance(status, dict) else None
-                    details = (
-                        body.get("exception")
-                        or status_message
-                        or body.get("message")
-                        or response.text
-                        or "unknown error"
-                    )
-                except (ValueError, KeyError):
+                    if isinstance(body, dict):
+                        status = body.get("status")
+                        status_message = status.get("message") if isinstance(status, dict) else None
+                        details = (
+                            body.get("exception")
+                            or status_message
+                            or body.get("message")
+                            or response.text
+                            or "unknown error"
+                        )
+                    else:
+                        details = response.text or "unknown error"
+                except (ValueError, KeyError, TypeError, AttributeError):
                     details = response.text or "unknown error"
 
                 req_body = response.request.body if response.request.body else "Empty body"
