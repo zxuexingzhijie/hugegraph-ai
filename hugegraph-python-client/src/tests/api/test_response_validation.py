@@ -15,24 +15,42 @@
 # specific language governing permissions and limitations
 # under the License.
 
+import unittest
 from unittest.mock import Mock
 
-import pytest
 import requests
 from pyhugegraph.utils.util import ResponseValidation
 
 
-def test_response_validation_raises_http_error_with_numeric_status_body():
-    response = Mock(spec=requests.Response)
-    response.status_code = 400
-    response.text = '{"status":400,"message":"bad gremlin"}'
-    response.content = response.text.encode("utf-8")
-    response.json.return_value = {"status": 400, "message": "bad gremlin"}
-    response.request = Mock()
-    response.request.body = "g.V2()"
-    response.raise_for_status.side_effect = requests.exceptions.HTTPError("400 Client Error")
+class TestResponseValidation(unittest.TestCase):
+    def _mock_error_response(self, body, text):
+        response = Mock(spec=requests.Response)
+        response.status_code = 400
+        response.text = text
+        response.content = response.text.encode("utf-8")
+        response.json.return_value = body
+        response.request = Mock()
+        response.request.body = "g.V2()"
+        response.raise_for_status.side_effect = requests.exceptions.HTTPError("400 Client Error")
+        return response
 
-    validator = ResponseValidation()
+    def test_numeric_status_body_raises_server_exception_with_message(self):
+        response = self._mock_error_response(
+            {"status": 400, "message": "bad gremlin"},
+            '{"status":400,"message":"bad gremlin"}',
+        )
+        validator = ResponseValidation()
 
-    with pytest.raises(Exception, match="bad gremlin"):
-        validator(response, "POST", "/gremlin")
+        with self.assertRaisesRegex(Exception, "Server Exception: bad gremlin"):
+            validator(response, "POST", "/gremlin")
+
+    def test_non_dict_json_body_raises_server_exception_with_response_text(self):
+        response = self._mock_error_response(["bad gremlin"], "bad gremlin")
+        validator = ResponseValidation()
+
+        with self.assertRaisesRegex(Exception, "Server Exception: bad gremlin"):
+            validator(response, "POST", "/gremlin")
+
+
+if __name__ == "__main__":
+    unittest.main()

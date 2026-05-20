@@ -79,15 +79,37 @@ class OllamaEmbedding(BaseEmbedding):
             all_embeddings.extend([list(inner_sequence) for inner_sequence in response])
         return all_embeddings
 
+    def _get_embeddings_from_response(self, response) -> List[List[float]]:
+        if "embeddings" not in response:
+            raise ValueError("Ollama embedding response missing 'embeddings'.")
+        embeddings = response["embeddings"]
+        if not embeddings:
+            raise ValueError("Ollama embedding response returned no embeddings.")
+        return [list(inner_sequence) for inner_sequence in embeddings]
+
     async def async_get_text_embedding(self, text: str) -> List[float]:
         """Get embedding for a single text asynchronously."""
+        if not hasattr(self.async_client, "embed"):
+            error_message = (
+                "The required 'embed' method was not found on the Ollama async client. "
+                "Please ensure your ollama library is up-to-date and supports batch embedding. "
+            )
+            raise AttributeError(error_message)
+
         response = await self.async_client.embed(model=self.model, input=[text])
-        return list(response["embeddings"][0])
+        return self._get_embeddings_from_response(response)[0]
 
     async def async_get_texts_embeddings(self, texts: List[str], batch_size: int = 32) -> List[List[float]]:
+        if not hasattr(self.async_client, "embed"):
+            error_message = (
+                "The required 'embed' method was not found on the Ollama async client. "
+                "Please ensure your ollama library is up-to-date and supports batch embedding. "
+            )
+            raise AttributeError(error_message)
+
         results: List[List[float]] = []
         for i in range(0, len(texts), batch_size):
             batch = texts[i : i + batch_size]
             response = await self.async_client.embed(model=self.model, input=batch)
-            results.extend([list(v) for v in response["embeddings"]])
+            results.extend(self._get_embeddings_from_response(response))
         return results

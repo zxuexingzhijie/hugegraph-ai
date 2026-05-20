@@ -47,7 +47,7 @@ class FetchGraphData:
         response = self.graph.gremlin().exec(groovy_code)
         result = response.get("data") if isinstance(response, dict) else None
         if isinstance(result, list) and len(result) > 0:
-            if len(result) == 1 and isinstance(result[0], dict) and any(key in result[0] for key in keys):
+            if len(result) == 1 and isinstance(result[0], dict):
                 graph_summary.update({key: result[0].get(key) for key in keys})
             else:
                 graph_summary.update(

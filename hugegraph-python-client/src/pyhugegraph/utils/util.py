@@ -107,14 +107,14 @@ class ResponseValidation:
                         status_message = status.get("message") if isinstance(status, dict) else None
                         details = (
                             body.get("exception")
-                            or status_message
                             or body.get("message")
+                            or status_message
                             or response.text
                             or "unknown error"
                         )
                     else:
                         details = response.text or "unknown error"
-                except (ValueError, KeyError, TypeError, AttributeError):
+                except (ValueError, KeyError, AttributeError, TypeError):
                     details = response.text or "unknown error"
 
                 req_body = response.request.body if response.request.body else "Empty body"

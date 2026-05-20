@@ -61,9 +61,9 @@ class SchemaManager:
         try:
             schema = self.schema.getSchema()
         except RequestException as e:
-            raise ValueError(f"Failed to connect HugeGraph to get schema '{self.graph_name}': {e}") from e
+            raise ValueError(f"Failed to connect to HugeGraph to get schema '{self.graph_name}': {e}") from e
         if not schema["vertexlabels"] and not schema["edgelabels"]:
-            raise ValueError(f"Can not get {self.graph_name}'s schema from HugeGraph!")
+            raise ValueError(f"Cannot get {self.graph_name}'s schema from HugeGraph!")
 
         context.update({"schema": schema})
         # TODO: enhance the logic here

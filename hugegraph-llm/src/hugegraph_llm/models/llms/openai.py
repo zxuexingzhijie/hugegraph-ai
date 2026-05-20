@@ -70,8 +70,8 @@ class OpenAIClient(BaseLLM):
                 max_tokens=self.max_tokens,
                 messages=messages,
             )
-            if not hasattr(completions, "choices"):
-                raise RuntimeError(f"Unexpected LLM response: {type(completions).__name__}: {str(completions)[:200]}")
+            if not completions.choices:
+                raise RuntimeError(f"Empty choices in LLM response: {str(completions)[:200]}")
             if completions.usage:
                 log.info("Token usage: %s", completions.usage.model_dump_json())
             return completions.choices[0].message.content
@@ -108,8 +108,8 @@ class OpenAIClient(BaseLLM):
                 max_tokens=self.max_tokens,
                 messages=messages,
             )
-            if not hasattr(completions, "choices"):
-                raise RuntimeError(f"Unexpected LLM response: {type(completions).__name__}: {str(completions)[:200]}")
+            if not completions.choices:
+                raise RuntimeError(f"Empty choices in LLM response: {str(completions)[:200]}")
             if completions.usage:
                 log.info("Token usage: %s", completions.usage.model_dump_json())
             return completions.choices[0].message.content
